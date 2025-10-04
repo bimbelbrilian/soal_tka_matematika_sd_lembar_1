@@ -2,8 +2,8 @@
 // KONFIGURASI KUIS - EDIT BAGIAN INI SAJA
 // ================================
 const quizConfig = {
-  title: "Penjumlahan",
-  subject: "Matematika",
+  title: "Soal TKA Matematika SD",
+  subject: "Lembar 1",
   description: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com"
 };
 
