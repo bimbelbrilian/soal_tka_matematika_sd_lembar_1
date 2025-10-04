@@ -4,7 +4,7 @@
 
 const quizConfig = {
     // 1. INFORMASI UMUM KUIS
-    quizName: "Kuis Matematika - Penjumlahan", // Judul utama yang muncul di tampilan dan sertifikat
+    quizName: "Soal", // Judul utama yang muncul di tampilan dan sertifikat
     quizTopic: "Matematika - Penjumlahan", // Nama kuis yang muncul di hasil penilaian
     quizIcon: "🧮", // Emoji atau ikon yang muncul di judul utama (bisa diganti misal '🔬')
     
