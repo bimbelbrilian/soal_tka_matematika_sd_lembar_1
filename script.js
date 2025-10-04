@@ -2,8 +2,8 @@
 // KONFIGURASI KUIS - EDIT BAGIAN INI SAJA
 // ================================
 const quizConfig = {
-  title: "Soal TKA Matematika SD",
-  subject: "Lembar 1",
+  title: "Penjumlahan",
+  subject: "Matematika",
   description: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com"
 };
 
@@ -29,26 +29,10 @@ let currentQuestions = [];
 let isSubmitted = false;
 let soundEnabled = true;
 let voiceEnabled = false;
-let audioContext = null;
 
 // ================================
-// FUNGSI UTAMA - DIPERBAIKI
+// FUNGSI UTAMA
 // ================================
-
-// Initialize Audio Context dengan error handling
-function initializeAudioContext() {
-  try {
-    if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    return audioContext;
-  } catch (error) {
-    console.log('Web Audio API tidak didukung di browser ini');
-    soundEnabled = false;
-    document.getElementById('soundToggle').textContent = '🔇 Sound';
-    return null;
-  }
-}
 
 // Update semua judul secara dinamis
 function updateQuizTitles() {
@@ -61,39 +45,33 @@ function updateQuizTitles() {
   document.getElementById('certificateTitle').innerHTML = `<strong>${fullTitle}</strong>`;
 }
 
-// Sound Effects menggunakan Web Audio API - DIPERBAIKI
+// Sound Effects menggunakan Web Audio API
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
 function playSound(frequency, duration, type = 'sine') {
   if (!soundEnabled) return;
   
-  const context = initializeAudioContext();
-  if (!context) return;
-  
   try {
-    if (context.state === 'suspended') {
-      context.resume().catch(() => {
-        console.log('Audio context tidak dapat diresume');
-        return;
-      });
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
     }
     
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
     
     oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
+    gainNode.connect(audioContext.destination);
     
-    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
     oscillator.type = type;
     
-    gainNode.gain.setValueAtTime(0.3, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + duration);
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
     
-    oscillator.start(context.currentTime);
-    oscillator.stop(context.currentTime + duration);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
   } catch (error) {
-    console.log('Sound error:', error);
-    soundEnabled = false;
-    document.getElementById('soundToggle').textContent = '🔇 Sound';
+    console.log('Sound tidak didukung di browser ini');
   }
 }
 
@@ -120,20 +98,11 @@ function playTimerSound() {
   playSound(330, 0.1);
 }
 
-// Text-to-Speech - DIPERBAIKI (Security Fix)
-function speakQuestion(element) {
-  if (!voiceEnabled) return;
-  
-  // Ambil teks dengan aman dari DOM
-  const questionText = element.textContent.replace(/^\d+\.\s*/, '');
-  speakText(questionText);
-}
-
+// Text-to-Speech
 function speakText(text) {
   if (!voiceEnabled) return;
   
   if ('speechSynthesis' in window) {
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
     const speech = new SpeechSynthesisUtterance(text);
@@ -141,11 +110,6 @@ function speakText(text) {
     speech.rate = 0.9;
     speech.pitch = 1;
     speech.volume = 1;
-    
-    // Error handling
-    speech.onerror = function(event) {
-      console.log('Text-to-speech error:', event.error);
-    };
     
     window.speechSynthesis.speak(speech);
   }
@@ -175,11 +139,6 @@ function updateVoiceIndicator() {
     voiceBtn.classList.remove('active');
     voiceBtn.innerHTML = '🎤 Baca Soal';
     
-    // Stop any ongoing speech when disabled
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    
     questions.forEach(question => {
       const indicator = question.querySelector('.voice-indicator');
       if (indicator) {
@@ -189,58 +148,42 @@ function updateVoiceIndicator() {
   }
 }
 
-// Progress Saving - DIPERBAIKI (Validation)
+// Progress Saving
 function saveProgress() {
-  try {
-    const progress = {
-      name: document.getElementById('name').value,
-      school: document.getElementById('school').value,
-      currentQuestion: currentQuestions.length > 0 ? currentQuestions.map((q, index) => {
-        const questionDiv = document.querySelector(`.question:nth-child(${index + 1})`);
-        const selected = questionDiv ? questionDiv.querySelector('input[type="radio"]:checked') : null;
-        return {
-          question: q.question,
-          selectedAnswer: selected ? selected.value : null,
-          isCorrect: selected ? selected.value === q.answer : false
-        };
-      }) : [],
-      timeLeft: timeLeft,
-      timestamp: new Date().getTime(),
-      version: '1.0' // Untuk validasi
-    };
-    
-    localStorage.setItem('quizProgress', JSON.stringify(progress));
-    updateProgressIndicator('Progress tersimpan!');
-  } catch (error) {
-    console.error('Error saving progress:', error);
-  }
+  const progress = {
+    name: document.getElementById('name').value,
+    school: document.getElementById('school').value,
+    currentQuestion: currentQuestions.length > 0 ? currentQuestions.map((q, index) => {
+      const questionDiv = document.querySelector(`.question:nth-child(${index + 1})`);
+      const selected = questionDiv ? questionDiv.querySelector('input[type="radio"]:checked') : null;
+      return {
+        question: q.question,
+        selectedAnswer: selected ? selected.value : null,
+        isCorrect: selected ? selected.value === q.answer : false
+      };
+    }) : [],
+    timeLeft: timeLeft,
+    timestamp: new Date().getTime()
+  };
+  
+  localStorage.setItem('quizProgress', JSON.stringify(progress));
+  updateProgressIndicator('Progress tersimpan!');
 }
 
 function loadProgress() {
-  try {
-    const saved = localStorage.getItem('quizProgress');
-    if (saved) {
-      const progress = JSON.parse(saved);
-      
-      // Validasi data
-      if (!progress.name || !progress.school || !progress.timestamp || !progress.version) {
-        localStorage.removeItem('quizProgress');
-        return null;
-      }
-      
-      const oneHour = 60 * 60 * 1000;
-      if (new Date().getTime() - progress.timestamp < oneHour) {
-        document.getElementById('name').value = progress.name || '';
-        document.getElementById('school').value = progress.school || '';
-        updateProgressIndicator('Progress sebelumnya ditemukan! Klik "Lanjutkan" untuk melanjutkan.');
-        return progress;
-      } else {
-        localStorage.removeItem('quizProgress');
-      }
+  const saved = localStorage.getItem('quizProgress');
+  if (saved) {
+    const progress = JSON.parse(saved);
+    
+    const oneHour = 60 * 60 * 1000;
+    if (new Date().getTime() - progress.timestamp < oneHour) {
+      document.getElementById('name').value = progress.name || '';
+      document.getElementById('school').value = progress.school || '';
+      updateProgressIndicator('Progress sebelumnya ditemukan! Klik "Lanjutkan" untuk melanjutkan.');
+      return progress;
+    } else {
+      localStorage.removeItem('quizProgress');
     }
-  } catch (error) {
-    console.error('Error loading progress:', error);
-    localStorage.removeItem('quizProgress');
   }
   return null;
 }
@@ -255,64 +198,7 @@ function updateProgressIndicator(message) {
   }, 3000);
 }
 
-// Helper function untuk copy to clipboard - DIPERBAIKI
-async function copyToClipboard(text) {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } else {
-      // Fallback untuk HTTP atau browser lama
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      textArea.style.pointerEvents = 'none';
-      document.body.appendChild(textArea);
-      textArea.select();
-      const result = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return result;
-    }
-  } catch (error) {
-    console.error('Copy failed:', error);
-    return false;
-  }
-}
-
-// Show notification - FUNCTION BARU
-function showNotification(message, type = 'info') {
-  // Hapus notifikasi sebelumnya
-  const existingNotification = document.querySelector('.custom-notification');
-  if (existingNotification) {
-    existingNotification.remove();
-  }
-  
-  const notification = document.createElement('div');
-  notification.className = `custom-notification ${type}`;
-  notification.textContent = message;
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6'};
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10000;
-    animation: slideInRight 0.3s ease;
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.animation = 'slideOutRight 0.3s ease';
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
-}
-
-// Social Sharing - DIPERBAIKI
+// Social Sharing
 async function shareResults() {
   const score = document.getElementById('score').textContent;
   const name = document.getElementById('studentName').textContent;
@@ -325,19 +211,21 @@ async function shareResults() {
         text: text,
         url: window.location.href
       });
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      alert('📋 Hasil berhasil disalin ke clipboard!');
     } else {
-      const copied = await copyToClipboard(text);
-      if (copied) {
-        showNotification('📋 Hasil berhasil disalin ke clipboard!', 'success');
-      } else {
-        showNotification('❌ Gagal menyalin hasil. Silakan salin manual.', 'error');
-      }
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('📋 Hasil berhasil disalin ke clipboard!');
     }
   } catch (error) {
-    if (error.name !== 'AbortError') {
-      console.log('Error sharing:', error);
-      showNotification('❌ Gagal membagikan hasil. Silakan salin manual.', 'error');
-    }
+    console.log('Error sharing:', error);
+    alert('❌ Gagal membagikan hasil. Silakan coba manual.');
   }
 }
 
@@ -365,10 +253,7 @@ function toggleSound() {
   soundEnabled = !soundEnabled;
   const button = document.getElementById('soundToggle');
   button.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
-  
-  if (soundEnabled) {
-    playSound(440, 0.1);
-  }
+  playSound(440, 0.1);
 }
 
 function toggleVoice() {
@@ -377,10 +262,6 @@ function toggleVoice() {
   
   if (voiceEnabled) {
     speakText('Fitur suara diaktifkan. Klik pada soal untuk mendengarkan pertanyaan.');
-  } else {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
   }
 }
 
@@ -407,7 +288,7 @@ function startQuiz() {
   const school = document.getElementById("school").value.trim();
   
   if (!name || !school) {
-    showNotification("Silakan isi nama dan asal sekolah terlebih dahulu!", "error");
+    alert("Silakan isi nama dan asal sekolah terlebih dahulu!");
     return;
   }
 
@@ -472,7 +353,7 @@ function generateQuestions() {
     });
     
     questionDiv.innerHTML = `
-      <p onclick="speakQuestion(this)">${index + 1}. ${q.question}</p>
+      <p onclick="speakText('${q.question}')">${index + 1}. ${q.question}</p>
       ${optionsHTML}
       <p class="feedback"></p>
     `;
@@ -487,7 +368,6 @@ function generateQuestions() {
       radio.addEventListener('change', function() {
         if (this.checked) {
           playSelectSound();
-          saveProgress(); // Auto-save ketika menjawab
         }
       });
     });
@@ -654,81 +534,74 @@ function toggleCertificate() {
 }
 
 function downloadCertificate() {
-  try {
-    const canvas = document.getElementById('downloadCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, '#fffbeb');
-    gradient.addColorStop(1, '#fef3c7');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.strokeStyle = 'gold';
-    ctx.lineWidth = 10;
-    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-    
-    ctx.fillStyle = '#4f46e5';
-    ctx.font = 'bold 60px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🏆 Sertifikat Prestasi', canvas.width / 2, 120);
-    
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '30px Arial';
-    ctx.fillText('Diberikan kepada:', canvas.width / 2, 200);
-    
-    ctx.fillStyle = '#4f46e5';
-    ctx.font = 'bold 40px Arial';
-    ctx.fillText(document.getElementById("name").value, canvas.width / 2, 260);
-    
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '25px Arial';
-    ctx.fillText(`Asal Sekolah: ${document.getElementById("school").value}`, canvas.width / 2, 310);
-    ctx.fillText('Atas antusias dan prestasi luar biasanya dalam mengerjakan', canvas.width / 2, 360);
-    
-    ctx.font = 'bold 30px Arial';
-    ctx.fillText(`Kuis ${quizConfig.subject} - ${quizConfig.title}`, canvas.width / 2, 410);
-    
-    const score = document.getElementById("score").textContent;
-    ctx.fillStyle = '#10b981';
-    ctx.font = 'bold 80px Arial';
-    ctx.fillText(score, canvas.width / 2, 500);
-    
-    ctx.fillStyle = '#64748b';
-    ctx.font = '20px Arial';
-    ctx.fillText(document.getElementById("certificateDate").textContent, canvas.width / 2, 560);
-    
-    const starCount = Math.round((parseInt(score) / 100) * 5);
-    const starSize = 40;
-    const starSpacing = 60;
-    const totalWidth = 5 * starSpacing;
-    const startX = (canvas.width - totalWidth) / 2 + starSpacing / 2;
-    
-    for (let i = 0; i < 5; i++) {
-      ctx.fillStyle = i < starCount ? 'gold' : '#e2e8f0';
-      ctx.font = `${starSize}px Arial`;
-      ctx.fillText('★', startX + i * starSpacing, 620);
-    }
-    
-    ctx.fillStyle = '#64748b';
-    ctx.font = '18px Arial';
-    ctx.fillText('Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com', canvas.width / 2, 700);
-    
-    const link = document.createElement('a');
-    const fileName = `sertifikat-${document.getElementById("name").value.replace(/\s+/g, '-')}-${score}.jpg`;
-    link.download = fileName;
-    link.href = canvas.toDataURL('image/jpeg', 0.9);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    showNotification('📥 Sertifikat berhasil diunduh!', 'success');
-  } catch (error) {
-    console.error('Error downloading certificate:', error);
-    showNotification('❌ Gagal mengunduh sertifikat', 'error');
+  const canvas = document.getElementById('downloadCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, '#fffbeb');
+  gradient.addColorStop(1, '#fef3c7');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.strokeStyle = 'gold';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+  
+  ctx.fillStyle = '#4f46e5';
+  ctx.font = 'bold 60px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('🏆 Sertifikat Prestasi', canvas.width / 2, 120);
+  
+  ctx.fillStyle = '#1e293b';
+  ctx.font = '30px Arial';
+  ctx.fillText('Diberikan kepada:', canvas.width / 2, 200);
+  
+  ctx.fillStyle = '#4f46e5';
+  ctx.font = 'bold 40px Arial';
+  ctx.fillText(document.getElementById("name").value, canvas.width / 2, 260);
+  
+  ctx.fillStyle = '#1e293b';
+  ctx.font = '25px Arial';
+  ctx.fillText(`Asal Sekolah: ${document.getElementById("school").value}`, canvas.width / 2, 310);
+  ctx.fillText('Atas antusias dan prestasi luar biasanya dalam mengerjakan', canvas.width / 2, 360);
+  
+  ctx.font = 'bold 30px Arial';
+  ctx.fillText(`Kuis ${quizConfig.subject} - ${quizConfig.title}`, canvas.width / 2, 410);
+  
+  const score = document.getElementById("score").textContent;
+  ctx.fillStyle = '#10b981';
+  ctx.font = 'bold 80px Arial';
+  ctx.fillText(score, canvas.width / 2, 500);
+  
+  ctx.fillStyle = '#64748b';
+  ctx.font = '20px Arial';
+  ctx.fillText(document.getElementById("certificateDate").textContent, canvas.width / 2, 560);
+  
+  const starCount = Math.round((parseInt(score) / 100) * 5);
+  const starSize = 40;
+  const starSpacing = 60;
+  const totalWidth = 5 * starSpacing;
+  const startX = (canvas.width - totalWidth) / 2 + starSpacing / 2;
+  
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = i < starCount ? 'gold' : '#e2e8f0';
+    ctx.font = `${starSize}px Arial`;
+    ctx.fillText('★', startX + i * starSpacing, 620);
   }
+  
+  ctx.fillStyle = '#64748b';
+  ctx.font = '18px Arial';
+  ctx.fillText('Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com', canvas.width / 2, 700);
+  
+  const link = document.createElement('a');
+  const fileName = `sertifikat-${document.getElementById("name").value}-${score}.jpg`;
+  link.download = fileName;
+  link.href = canvas.toDataURL('image/jpeg', 0.9);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 function retryQuiz() {
@@ -757,17 +630,8 @@ document.addEventListener('DOMContentLoaded', function() {
   updateQuizTitles();
   initializeEventListeners();
   
-  // Initialize audio context saat user interaction
-  document.addEventListener('click', function initAudio() {
-    initializeAudioContext();
-    document.removeEventListener('click', initAudio);
-  }, { once: true });
-  
   const savedProgress = loadProgress();
   if (savedProgress) {
     document.getElementById('startBtn').textContent = '🚀 LANJUTKAN KUIS';
   }
-  
-  // Fallback untuk browser tanpa JavaScript
-  document.body.classList.remove('no-js');
 });
