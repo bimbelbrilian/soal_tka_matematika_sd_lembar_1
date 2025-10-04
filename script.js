@@ -1,11 +1,25 @@
-let timerInterval;
-let timeLeft = 0;
-let currentQuestions = [];
-let isSubmitted = false;
-let soundEnabled = true;
-let voiceEnabled = false;
+// =================================================================
+// 🎯 PUSAT KONFIGURASI KUIS (EDIT HANYA BAGIAN INI UNTUK MENGGANTI KUIS)
+// =================================================================
 
-// Database soal
+const quizConfig = {
+    // 1. INFORMASI UMUM KUIS
+    quizName: "Kuis Matematika - Penjumlahan", // Judul utama yang muncul di tampilan dan sertifikat
+    quizTopic: "Matematika - Penjumlahan", // Nama kuis yang muncul di hasil penilaian
+    quizIcon: "🧮", // Emoji atau ikon yang muncul di judul utama
+    
+    // 2. TIMING
+    timePerQuestionMinutes: 5, // Waktu pengerjaan per soal (dalam menit)
+    
+    // 3. BRANDING
+    mainSubtitle: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com", // Subjudul kuis
+    footerText: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com", // Teks footer di sertifikat
+};
+
+// =================================================================
+// 📝 DATABASE SOAL (EDIT JUGA BAGIAN INI UNTUK SOAL BARU)
+// =================================================================
+
 const questionBank = [
   { question: "Hasil dari 7 + 8 adalah...", options: ["14", "15", "16", "17"], answer: "15" },
   { question: "Hasil dari 14 + 9 adalah...", options: ["22", "23", "24", "25"], answer: "23" },
@@ -19,6 +33,17 @@ const questionBank = [
   { question: "Hasil dari 125 + 59 adalah...", options: ["183", "184", "185", "186"], answer: "184" }
 ];
 
+// =================================================================
+// ⚙️ LOGIKA KUIS (JANGAN UBAH KECUALI ANDA PAHAM JAVASCRIPT)
+// =================================================================
+
+let timerInterval;
+let timeLeft = 0;
+let currentQuestions = [];
+let isSubmitted = false;
+let soundEnabled = true;
+let voiceEnabled = false;
+
 // Sound Effects menggunakan Web Audio API
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -26,7 +51,6 @@ function playSound(frequency, duration, type = 'sine') {
   if (!soundEnabled) return;
 
   try {
-    // Resume audio context jika suspended
     if (audioContext.state === 'suspended') {
       audioContext.resume();
     }
@@ -51,26 +75,26 @@ function playSound(frequency, duration, type = 'sine') {
 }
 
 function playSelectSound() {
-  playSound(392, 0.1); // G4 - Sound ketika memilih jawaban
+  playSound(392, 0.1); 
 }
 
 function playCorrectSound() {
-  playSound(523.25, 0.2); // C5
-  setTimeout(() => playSound(659.25, 0.2), 150); // E5
+  playSound(523.25, 0.2); 
+  setTimeout(() => playSound(659.25, 0.2), 150);
 }
 
 function playWrongSound() {
-  playSound(220, 0.3, 'square'); // A3
+  playSound(220, 0.3, 'square');
 }
 
 function playCompleteSound() {
-  playSound(523.25, 0.2); // C5
-  setTimeout(() => playSound(659.25, 0.2), 200); // E5
-  setTimeout(() => playSound(783.99, 0.4), 400); // G5
+  playSound(523.25, 0.2); 
+  setTimeout(() => playSound(659.25, 0.2), 200);
+  setTimeout(() => playSound(783.99, 0.4), 400);
 }
 
 function playTimerSound() {
-  playSound(330, 0.1); // E4
+  playSound(330, 0.1); 
 }
 
 // Text-to-Speech
@@ -78,7 +102,6 @@ function speakText(text) {
   if (!voiceEnabled) return;
 
   if ('speechSynthesis' in window) {
-    // Stop any ongoing speech
     window.speechSynthesis.cancel();
 
     const speech = new SpeechSynthesisUtterance(text);
@@ -97,12 +120,10 @@ function updateVoiceIndicator() {
   const voiceBtn = document.getElementById('voiceBtn');
 
   if (voiceEnabled) {
-    // Mode aktif - tambah indikator dan styling
     document.getElementById('quizContent').classList.add('voice-enabled');
     voiceBtn.classList.add('active');
-    voiceBtn.innerHTML = '🔊 Baca Soal';
+    voiceBtn.innerHTML = '🔊 Sound Aktif';
 
-    // Tambah indikator pada setiap soal
     questions.forEach(question => {
       const questionText = question.querySelector('p');
       if (!questionText.querySelector('.voice-indicator')) {
@@ -110,21 +131,18 @@ function updateVoiceIndicator() {
         indicator.className = 'voice-indicator';
         indicator.innerHTML = '🔊';
         questionText.appendChild(indicator);
-        // Tambahkan event listener untuk memanggil speakText saat diklik
         questionText.onclick = () => speakText(questionText.textContent.replace('🔊', '').trim());
       }
     });
   } else {
-    // Mode non-aktif - hapus indikator dan styling
     document.getElementById('quizContent').classList.remove('voice-enabled');
     voiceBtn.classList.remove('active');
     voiceBtn.innerHTML = '🎤 Baca Soal';
 
-    // Hapus indikator dari setiap soal
     questions.forEach(question => {
       const questionText = question.querySelector('p');
       if (questionText) {
-        questionText.onclick = null; // Hapus event listener
+        questionText.onclick = null;
       }
       const indicator = question.querySelector('.voice-indicator');
       if (indicator) {
@@ -132,6 +150,27 @@ function updateVoiceIndicator() {
       }
     });
   }
+}
+
+// Fungsi untuk mengganti semua teks berdasarkan quizConfig
+function updateQuizText() {
+    // 1. Mengganti Judul Utama Halaman (Tab Browser)
+    document.getElementById('pageTitle').textContent = quizConfig.quizName;
+
+    // 2. Mengganti Judul Utama di Tampilan (H1)
+    document.getElementById('mainTitle').innerHTML = `${quizConfig.quizIcon} ${quizConfig.quizName}`;
+    
+    // 3. Mengganti Subjudul (Subtitle)
+    document.getElementById('mainSubtitle').textContent = quizConfig.mainSubtitle;
+    
+    // 4. Mengganti Nama Kuis di Hasil Penilaian
+    document.getElementById('resultQuizTopic').textContent = quizConfig.quizTopic;
+    
+    // 5. Mengganti Nama Kuis di Sertifikat
+    document.getElementById('certificateQuizTopic').textContent = quizConfig.quizTopic;
+    
+    // 6. Mengganti Teks Footer Sertifikat
+    document.getElementById('certificateFooterText').textContent = quizConfig.footerText;
 }
 
 // Progress Saving
@@ -161,7 +200,6 @@ function loadProgress() {
   if (saved) {
     const progress = JSON.parse(saved);
 
-    // Cek jika progress masih valid (kurang dari 1 jam)
     const oneHour = 60 * 60 * 1000;
     if (new Date().getTime() - progress.timestamp < oneHour) {
       document.getElementById('name').value = progress.name || '';
@@ -189,12 +227,12 @@ function updateProgressIndicator(message) {
 async function shareResults() {
   const score = document.getElementById('score').textContent;
   const name = document.getElementById('studentName').textContent;
-  const text = `🎉 ${name} berhasil mendapatkan nilai ${score}% dalam Kuis Matematika - Penjumlahan dari Bimbel Brilian! 🧮✨`;
+  const text = `🎉 ${name} berhasil mendapatkan nilai ${score}% dalam ${quizConfig.quizName} dari Bimbel Brilian! ✨`;
 
   try {
     if (navigator.share) {
       await navigator.share({
-        title: 'Hasil Kuis Matematika Bimbel Brilian',
+        title: `Hasil ${quizConfig.quizName} Bimbel Brilian`,
         text: text,
         url: window.location.href
       });
@@ -202,7 +240,6 @@ async function shareResults() {
       await navigator.clipboard.writeText(text);
       alert('📋 Hasil berhasil disalin ke clipboard!');
     } else {
-      // Fallback untuk browser lama
       const textArea = document.createElement('textarea');
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -229,15 +266,10 @@ function shuffleArray(array) {
 
 // Initialize Event Listeners
 function initializeEventListeners() {
-  // Tombol Start
   document.getElementById('startBtn').addEventListener('click', startQuiz);
-
-  // Tombol Fitur
   document.getElementById('soundToggle').addEventListener('click', toggleSound);
   document.getElementById('voiceBtn').addEventListener('click', toggleVoice);
   document.getElementById('shareBtn').addEventListener('click', shareResults);
-
-  // Tombol di hasil (akan di-set ulang setiap submit)
   setupResultButtonListeners();
 }
 
@@ -245,7 +277,7 @@ function toggleSound() {
   soundEnabled = !soundEnabled;
   const button = document.getElementById('soundToggle');
   button.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
-  playSound(440, 0.1); // Feedback sound
+  playSound(440, 0.1); 
 }
 
 function toggleVoice() {
@@ -253,44 +285,35 @@ function toggleVoice() {
   updateVoiceIndicator();
 
   if (voiceEnabled) {
-    // Baca instruksi pertama kali
     speakText('Fitur suara diaktifkan. Klik pada soal untuk mendengarkan pertanyaan.');
   } else {
     window.speechSynthesis.cancel();
   }
 }
 
-// Setup event listeners untuk tombol hasil
 function setupResultButtonListeners() {
-  // Dapatkan elemen tombol yang sudah ada di DOM
   const certificateBtn = document.getElementById('certificateBtn');
   const downloadBtn = document.getElementById('downloadBtn');
   const retryResultBtn = document.getElementById('retryResultBtn');
   const wrongResultBtn = document.getElementById('wrongResultBtn');
 
-  // Hapus event listener lama dengan mengganti node (metode yang aman)
-  const newCertificateBtn = certificateBtn.cloneNode(true);
-  certificateBtn.parentNode.replaceChild(newCertificateBtn, certificateBtn);
-  const newDownloadBtn = downloadBtn.cloneNode(true);
-  downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
-  const newRetryResultBtn = retryResultBtn.cloneNode(true);
-  retryResultBtn.parentNode.replaceChild(newRetryResultBtn, retryResultBtn);
-  const newWrongResultBtn = wrongResultBtn.cloneNode(true);
-  wrongResultBtn.parentNode.replaceChild(newWrongResultBtn, wrongResultBtn);
+  // Clone and replace to safely remove old listeners
+  const cloneAndReplace = (oldEl) => {
+    const newEl = oldEl.cloneNode(true);
+    oldEl.parentNode.replaceChild(newEl, oldEl);
+    return newEl;
+  };
 
-
-  // Tambah event listener baru pada node yang baru
-  document.getElementById('certificateBtn').addEventListener('click', toggleCertificate);
-  document.getElementById('downloadBtn').addEventListener('click', downloadCertificate);
-  document.getElementById('retryResultBtn').addEventListener('click', retryQuiz);
-  document.getElementById('wrongResultBtn').addEventListener('click', showWrong);
+  cloneAndReplace(certificateBtn).addEventListener('click', toggleCertificate);
+  cloneAndReplace(downloadBtn).addEventListener('click', downloadCertificate);
+  cloneAndReplace(retryResultBtn).addEventListener('click', retryQuiz);
+  cloneAndReplace(wrongResultBtn).addEventListener('click', showWrong);
 }
 
 function startQuiz() {
   const name = document.getElementById("name").value.trim();
   const school = document.getElementById("school").value.trim();
 
-  // Validasi HTML5 required
   if (!name || !school) {
     alert("Silakan isi nama dan asal sekolah terlebih dahulu!");
     return;
@@ -300,33 +323,28 @@ function startQuiz() {
   document.getElementById("quizContent").classList.remove("hidden");
   document.getElementById("quizControls").classList.remove("hidden");
   document.getElementById("timer").classList.remove("hidden");
-  document.getElementById("result").style.display = "none"; // Sembunyikan hasil jika ada
+  document.getElementById("result").style.display = "none";
 
-  // Reset status submit
   isSubmitted = false;
 
-  // Cek dan muat progress jika ada
   const savedProgress = loadProgress();
 
   if (savedProgress && savedProgress.currentQuestion.length > 0) {
-    // Muat soal dari progress yang tersimpan
     currentQuestions = savedProgress.currentQuestion.map(q => ({
       question: q.question,
-      options: questionBank.find(qb => qb.question === q.question).options, // Ambil opsi asli dari questionBank
+      options: questionBank.find(qb => qb.question === q.question).options,
       answer: questionBank.find(qb => qb.question === q.question).answer,
       selectedAnswer: q.selectedAnswer,
       isCorrect: q.isCorrect
     }));
     timeLeft = savedProgress.timeLeft;
-    generateQuestions(savedProgress); // Kirim savedProgress untuk pre-select jawaban
+    generateQuestions(savedProgress);
   } else {
-    // Generate soal baru
     generateQuestions();
-    // Timer = jumlah soal × 5 menit
-    timeLeft = currentQuestions.length * 5 * 60; // detik
+    // Gunakan konfigurasi waktu baru
+    timeLeft = currentQuestions.length * quizConfig.timePerQuestionMinutes * 60; 
   }
 
-  // Auto-save progress setiap 30 detik
   const progressInterval = setInterval(() => {
     if (!isSubmitted) {
       saveProgress();
@@ -340,12 +358,7 @@ function startQuiz() {
     timeLeft--;
     updateTimer();
 
-    // Play timer sound setiap 10 detik terakhir
-    if (timeLeft <= 10 && timeLeft > 0) {
-      playTimerSound();
-    }
-    // Play timer sound setiap 30 detik terakhir
-    else if (timeLeft <= 60 && timeLeft > 0 && timeLeft % 10 === 0) {
+    if ((timeLeft <= 60 && timeLeft > 0 && timeLeft % 10 === 0) || (timeLeft <= 10 && timeLeft > 0)) {
       playTimerSound();
     }
 
@@ -355,19 +368,15 @@ function startQuiz() {
     }
   }, 1000);
 
-  playSound(523.25, 0.3); // Start sound
+  playSound(523.25, 0.3);
 }
 
 function generateQuestions(progress = null) {
   const quizContent = document.getElementById("quizContent");
   quizContent.innerHTML = '';
 
-  // Jika tidak ada progress, inisialisasi currentQuestions dari questionBank
   if (!progress) {
-    // Urutan soal tetap, hanya opsi yang akan diacak di bawah
     currentQuestions = [...questionBank];
-  } else {
-    // Jika ada progress, currentQuestions sudah terisi saat memuat progress
   }
 
   currentQuestions.forEach((q, index) => {
@@ -375,8 +384,7 @@ function generateQuestions(progress = null) {
     questionDiv.className = 'question';
     questionDiv.dataset.answer = q.answer;
 
-    // Acak urutan opsi jawaban menggunakan Fisher-Yates
-    const optionsToShuffle = progress ? questionBank.find(qb => qb.question === q.question).options : q.options;
+    const optionsToShuffle = questionBank.find(qb => qb.question === q.question).options;
     const shuffledOptions = shuffleArray([...optionsToShuffle]);
     const optionLetters = ['a', 'b', 'c', 'd'];
 
@@ -401,10 +409,8 @@ function generateQuestions(progress = null) {
     quizContent.appendChild(questionDiv);
   });
 
-  // Update indikator suara setelah soal digenerate
   updateVoiceIndicator();
 
-  // Tambahkan event listener untuk setiap radio button (sound effect ketika dipilih)
   setTimeout(() => {
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.addEventListener('change', function() {
@@ -415,7 +421,6 @@ function generateQuestions(progress = null) {
     });
   }, 100);
 
-  // Tambahkan tombol submit dengan event listener yang benar
   const buttonGroup = document.createElement('div');
   buttonGroup.className = 'button-group';
   buttonGroup.innerHTML = `
@@ -425,9 +430,7 @@ function generateQuestions(progress = null) {
   `;
   quizContent.appendChild(buttonGroup);
 
-  // Tambahkan event listeners untuk tombol kuis
   document.getElementById('submitBtn').addEventListener('click', submitQuiz);
-  // Pastikan tombol-tombol lain tersembunyi pada awal kuis
   document.getElementById('retryBtn').classList.add("hidden");
   document.getElementById('wrongBtn').classList.add("hidden");
   document.getElementById('retryBtn').addEventListener('click', retryQuiz);
@@ -442,17 +445,17 @@ function updateTimer() {
 }
 
 function submitQuiz() {
-  if (isSubmitted) return; // Prevent multiple submissions
+  if (isSubmitted) return;
 
   isSubmitted = true;
   const submitBtn = document.getElementById("submitBtn");
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.style.display = 'none'; // Hilangkan tombol koreksi jawaban
+    submitBtn.style.display = 'none';
   }
 
   clearInterval(timerInterval);
-  window.speechSynthesis.cancel(); // Hentikan baca soal jika sedang berjalan
+  window.speechSynthesis.cancel();
 
   let correct = 0;
   let wrong = 0;
@@ -463,43 +466,33 @@ function submitQuiz() {
     const selected = q.querySelector("input[type='radio']:checked");
     const feedback = q.querySelector(".feedback");
     const options = q.querySelectorAll("input[type='radio']");
-    let isCurrentCorrect = false;
 
     options.forEach(opt => {
-      opt.disabled = true; // Non-aktifkan semua opsi
-      if (opt.value === answer) opt.parentElement.style.background = "#d1fae5"; // Highlight jawaban benar
+      opt.disabled = true;
+      if (opt.value === answer) opt.parentElement.style.background = "#d1fae5";
       if (selected && opt === selected && opt.value !== answer) {
-        opt.parentElement.style.background = "#fee2e2"; // Highlight jawaban salah yang dipilih
+        opt.parentElement.style.background = "#fee2e2";
       }
     });
 
-    if (selected) {
-      if (selected.value === answer) {
-        correct++;
-        isCurrentCorrect = true;
-        feedback.textContent = "✅ Jawaban Benar!";
-        feedback.className = "feedback benar";
-        playCorrectSound();
-      } else {
-        wrong++;
-        wrongList.push(index + 1);
-        feedback.textContent = `❌ Jawaban Salah. Jawaban yang benar adalah: ${answer}`;
-        feedback.className = "feedback salah";
-        playWrongSound();
-      }
+    if (selected && selected.value === answer) {
+      correct++;
+      feedback.textContent = "✅ Jawaban Benar!";
+      feedback.className = "feedback benar";
+      playCorrectSound();
     } else {
       wrong++;
       wrongList.push(index + 1);
-      feedback.textContent = `⏰ Belum dijawab. Jawaban yang benar adalah: ${answer}`;
+      const answerText = selected ? 'Jawaban Salah.' : 'Belum dijawab.';
+      feedback.textContent = `❌ ${answerText} Jawaban yang benar adalah: ${answer}`;
       feedback.className = "feedback salah";
       playWrongSound();
     }
   });
 
-  const total = questionBank.length; // Hitung total dari questionBank yang asli
+  const total = questionBank.length;
   const nilai = Math.round((correct / total) * 100);
 
-  // Update hasil
   document.getElementById("studentName").textContent = document.getElementById("name").value;
   document.getElementById("studentSchool").textContent = document.getElementById("school").value;
   document.getElementById("score").textContent = nilai;
@@ -508,41 +501,32 @@ function submitQuiz() {
   document.getElementById("wrongNumbers").textContent =
     wrongList.length > 0 ? `Soal yang salah/kosong: ${wrongList.join(", ")}` : "🎊 Semua soal benar!";
 
-  // Format tanggal
   const today = new Date();
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   const tanggal = today.toLocaleDateString('id-ID', options);
   document.getElementById("tanggal").textContent = `Dikerjakan pada ${tanggal}`;
 
-  // Sistem bintang
   updateStars(nilai, "starContainer");
 
-  // Achievement badges
   updateAchievements(nilai, correct, total);
 
-  // Update sertifikat
   document.getElementById("certificateName").textContent = document.getElementById("name").value;
   document.getElementById("certificateSchool").textContent = document.getElementById("school").value;
   document.getElementById("certificateScore").textContent = nilai;
   document.getElementById("certificateDate").textContent = `Tanggal: ${tanggal}`;
   updateStars(nilai, "certificateStars");
 
-  // Setup ulang event listeners untuk tombol hasil
   setupResultButtonListeners();
 
-  // Tampilkan tombol retry dan wrong pada area kuis
   document.getElementById("retryBtn").classList.remove("hidden");
   document.getElementById("wrongBtn").classList.remove("hidden");
 
-  // Tampilkan hasil dan tombol hasil
   document.getElementById("result").style.display = "block";
   document.getElementById("retryResultBtn").classList.remove("hidden");
   document.getElementById("wrongResultBtn").classList.remove("hidden");
 
-  // Play completion sound
   playCompleteSound();
 
-  // Clear saved progress
   localStorage.removeItem('quizProgress');
 }
 
@@ -599,8 +583,14 @@ function toggleCertificate() {
 function downloadCertificate() {
   const canvas = document.getElementById('downloadCanvas');
   const ctx = canvas.getContext('2d');
+  
+  // Update canvas text based on current config (penting untuk download)
+  const score = document.getElementById("score").textContent;
+  const name = document.getElementById("name").value;
+  const school = document.getElementById("school").value;
+  const date = document.getElementById("certificateDate").textContent;
+  const quizName = quizConfig.quizName;
 
-  // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Background gradient
@@ -610,36 +600,35 @@ function downloadCertificate() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Border emas
+  // Border
   ctx.strokeStyle = 'gold';
   ctx.lineWidth = 10;
   ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
 
-  // Judul sertifikat
+  // Judul
   ctx.fillStyle = '#4f46e5';
   ctx.font = 'bold 60px Arial';
   ctx.textAlign = 'center';
   ctx.fillText('🏆 Sertifikat Prestasi', canvas.width / 2, 120);
 
-  // Konten sertifikat
+  // Konten
   ctx.fillStyle = '#1e293b';
   ctx.font = '30px Arial';
   ctx.fillText('Diberikan kepada:', canvas.width / 2, 200);
 
   ctx.fillStyle = '#4f46e5';
   ctx.font = 'bold 40px Arial';
-  ctx.fillText(document.getElementById("name").value, canvas.width / 2, 260);
+  ctx.fillText(name, canvas.width / 2, 260);
 
   ctx.fillStyle = '#1e293b';
   ctx.font = '25px Arial';
-  ctx.fillText(`Asal Sekolah: ${document.getElementById("school").value}`, canvas.width / 2, 310);
+  ctx.fillText(`Asal Sekolah: ${school}`, canvas.width / 2, 310);
   ctx.fillText('Atas antusias dan prestasi luar biasanya dalam mengerjakan', canvas.width / 2, 360);
 
   ctx.font = 'bold 30px Arial';
-  ctx.fillText('Kuis Matematika - Penjumlahan', canvas.width / 2, 410);
+  ctx.fillText(quizName, canvas.width / 2, 410);
 
   // Nilai
-  const score = document.getElementById("score").textContent;
   ctx.fillStyle = '#10b981';
   ctx.font = 'bold 80px Arial';
   ctx.fillText(score, canvas.width / 2, 500);
@@ -647,9 +636,9 @@ function downloadCertificate() {
   // Tanggal
   ctx.fillStyle = '#64748b';
   ctx.font = '20px Arial';
-  ctx.fillText(document.getElementById("certificateDate").textContent, canvas.width / 2, 560);
+  ctx.fillText(date, canvas.width / 2, 560);
 
-  // Bintang - Rata tengah
+  // Bintang
   const starCount = Math.round((parseInt(score) / 100) * 5);
   const starSize = 40;
   const starSpacing = 60;
@@ -665,11 +654,11 @@ function downloadCertificate() {
   // Footer
   ctx.fillStyle = '#64748b';
   ctx.font = '18px Arial';
-  ctx.fillText('Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com', canvas.width / 2, 700);
+  ctx.fillText(quizConfig.footerText, canvas.width / 2, 700);
 
   // Download image
   const link = document.createElement('a');
-  const fileName = `sertifikat-${document.getElementById("name").value}-${score}.jpg`;
+  const fileName = `sertifikat-${name}-${score}.jpg`;
   link.download = fileName;
   link.href = canvas.toDataURL('image/jpeg', 0.9);
   document.body.appendChild(link);
@@ -678,25 +667,18 @@ function downloadCertificate() {
 }
 
 function retryQuiz() {
-  // Clear any active interval or speech
   clearInterval(timerInterval);
   window.speechSynthesis.cancel();
   localStorage.removeItem('quizProgress');
 
-  // Reset elements
   document.getElementById("result").style.display = "none";
   document.getElementById("certificate").style.display = "none";
   document.getElementById("quizContent").classList.add("hidden");
   document.getElementById("quizControls").classList.add("hidden");
   document.getElementById("timer").classList.add("hidden");
   document.getElementById("startBtn").style.display = "block";
-  document.getElementById("startBtn").textContent = '🚀 MULAI MENGERJAKAN'; // Reset text just in case
+  document.getElementById("startBtn").textContent = '🚀 MULAI MENGERJAKAN';
 
-  // Clear name/school for a fresh start or let the user decide
-  // document.getElementById("name").value = '';
-  // document.getElementById("school").value = '';
-
-  // Clear quiz content
   document.getElementById("quizContent").innerHTML = '';
 }
 
@@ -704,7 +686,6 @@ function showWrong() {
   document.querySelectorAll(".question").forEach((q, index) => {
     const answer = q.dataset.answer;
     const selected = q.querySelector("input[type='radio']:checked");
-    // Tampilkan hanya jika jawaban salah atau belum dijawab
     if (selected && selected.value === answer) {
       q.style.display = "none";
     } else {
@@ -715,9 +696,11 @@ function showWrong() {
 
 // Initialize aplikasi saat DOM siap
 document.addEventListener('DOMContentLoaded', function() {
+  // Panggil fungsi untuk mengisi teks dari konfigurasi
+  updateQuizText();
+
   initializeEventListeners();
 
-  // Cek progress yang tersimpan
   const savedProgress = loadProgress();
   if (savedProgress) {
     document.getElementById('startBtn').textContent = '🚀 LANJUTKAN KUIS';
