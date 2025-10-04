@@ -4,34 +4,27 @@
 
 const quizConfig = {
     // 1. INFORMASI UMUM KUIS
-    quizName: "Soal", // Judul utama yang muncul di tampilan dan sertifikat
-    quizTopic: "Soal", // Nama kuis yang muncul di hasil penilaian
-    quizIcon: "🧮", // Emoji atau ikon yang muncul di judul utama (bisa diganti misal '🔬')
+    quizName: "Kuis Matematika - Penjumlahan", // Judul utama di tampilan & sertifikat
+    quizTopic: "Matematika - Penjumlahan", // Nama kuis di hasil penilaian
+    quizIcon: "🧮", // Emoji atau ikon di judul utama (misal: "🔬")
     
     // 2. TIMING
-    timePerQuestionMinutes: 5, // Waktu pengerjaan per soal (dalam menit). Total waktu = jumlah soal * nilai ini.
+    timePerQuestionMinutes: 5, // Waktu pengerjaan per soal (dalam menit)
     
     // 3. BRANDING
-    mainSubtitle: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com", // Subjudul kuis
-    footerText: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com", // Teks footer di sertifikat
+    mainSubtitle: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com", // Subjudul
+    footerText: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com", // Teks footer sertifikat
 };
 
 // =================================================================
 // 📝 DATABASE SOAL (EDIT JUGA BAGIAN INI UNTUK SOAL BARU)
-// Pastikan nilai 'answer' sama persis dengan salah satu opsi di 'options'.
 // =================================================================
 
 const questionBank = [
   { question: "Hasil dari 7 + 8 adalah...", options: ["14", "15", "16", "17"], answer: "15" },
   { question: "Hasil dari 14 + 9 adalah...", options: ["22", "23", "24", "25"], answer: "23" },
   { question: "Hasil dari 27 + 15 adalah...", options: ["41", "42", "43", "44"], answer: "42" },
-  { question: "Hasil dari 36 + 22 adalah...", options: ["57", "58", "59", "60"], answer: "58" },
-  { question: "Hasil dari 45 + 32 adalah...", options: ["76", "77", "78", "79"], answer: "77" },
-  { question: "Hasil dari 58 + 36 adalah...", options: ["93", "94", "95", "96"], answer: "94" },
-  { question: "Hasil dari 67 + 48 adalah...", options: ["114", "115", "116", "117"], answer: "115" },
-  { question: "Hasil dari 89 + 43 adalah...", options: ["131", "132", "133", "134"], answer: "132" },
-  { question: "Hasil dari 97 + 59 adalah...", options: ["155", "156", "157", "158"], answer: "156" },
-  { question: "Hasil dari 125 + 59 adalah...", options: ["183", "184", "185", "186"], answer: "184" }
+  // Tambahkan soal baru di sini
 ];
 
 // =================================================================
@@ -46,7 +39,8 @@ let soundEnabled = true;
 let voiceEnabled = false;
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-// ... (semua fungsi playSound, playSelectSound, dsb. tetap sama) ...
+// ... (kode fungsi playSound, playSelectSound, dsb. tetap sama) ...
+
 function playSound(frequency, duration, type = 'sine') { /* ... kode sound ... */ }
 function playSelectSound() { playSound(392, 0.1); }
 function playCorrectSound() { playSound(523.25, 0.2); setTimeout(() => playSound(659.25, 0.2), 150); }
@@ -85,13 +79,16 @@ function updateQuizText() {
     document.getElementById('mainSubtitle').textContent = quizConfig.mainSubtitle;
     
     // 4. Nama Kuis di Hasil Penilaian
-    document.getElementById('resultQuizTopic').textContent = quizConfig.quizTopic;
+    const resultTopicEl = document.getElementById('resultQuizTopic');
+    if (resultTopicEl) resultTopicEl.textContent = quizConfig.quizTopic;
     
     // 5. Nama Kuis di Sertifikat
-    document.getElementById('certificateQuizTopic').textContent = quizConfig.quizTopic;
+    const certTopicEl = document.getElementById('certificateQuizTopic');
+    if (certTopicEl) certTopicEl.textContent = quizConfig.quizTopic;
     
     // 6. Teks Footer Sertifikat
-    document.getElementById('certificateFooterText').textContent = quizConfig.footerText;
+    const footerEl = document.getElementById('certificateFooterText');
+    if (footerEl) footerEl.textContent = quizConfig.footerText;
 }
 
 
