@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="dynamicTitle">Kuis Matematika - Penjumlahan</title>
+  <title>Kuis Matematika - Penjumlahan</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1 id="quizTitle">🧮 Kuis Matematika - Penjumlahan</h1>
-      <p id="quizSubtitle" class="subtitle">Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com</p>
+      <h1>🧮 Kuis Matematika - Penjumlahan</h1>
+      <p class="subtitle">Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com</p>
     </div>
 
-    <!-- Identitas -->
     <div class="identity-box">
       <label for="name">Nama:</label>
       <input type="text" id="name" placeholder="Masukkan nama Anda" required>
@@ -21,10 +20,8 @@
       <input type="text" id="school" placeholder="Masukkan asal sekolah Anda" required>
     </div>
 
-    <!-- Tombol Start -->
     <button id="startBtn">🚀 MULAI MENGERJAKAN</button>
 
-    <!-- Controls Area -->
     <div id="quizControls" class="hidden">
       <div class="quiz-controls">
         <div id="timer" class="hidden">⏱️ Waktu tersisa: <span id="time">00:00</span></div>
@@ -33,28 +30,23 @@
           <button id="voiceBtn">🎤 Baca Soal</button>
         </div>
       </div>
-      
-      <!-- Progress Indicator -->
+
       <div id="progressIndicator" class="progress-indicator"></div>
     </div>
 
-    <!-- Soal -->
     <div id="quizContent" class="hidden">
-      <!-- Soal akan di-generate secara dinamis -->
-    </div>
+      </div>
 
-    <!-- Hasil -->
     <div id="result" class="result-box">
       <img src="https://bimbelbrilian.com/wp-content/uploads/2025/10/Logo-bimbelbrilian-2025-scaled.png" 
            alt="Logo Bimbel Brilian" class="logo">
       <h2>🎉 Hasil Penilaian</h2>
-      <p id="resultTitle"><strong>Kuis Matematika - Penjumlahan</strong></p>
+      <p><strong>Kuis Matematika - Penjumlahan</strong></p>
       <p><strong>Nama:</strong> <span id="studentName"></span></p>
       <p><strong>Asal Sekolah:</strong> <span id="studentSchool"></span></p>
       
       <div class="stars" id="starContainer">
-        <!-- Stars will be dynamically added -->
-      </div>
+        </div>
       
       <div class="score" id="score">0</div>
       
@@ -64,12 +56,10 @@
       <p id="wrongNumbers"></p>
       <p id="tanggal"></p>
 
-      <!-- Feature Buttons -->
       <div class="feature-buttons">
         <button id="shareBtn">📤 Share Hasil</button>
       </div>
 
-      <!-- Sertifikat -->
       <div class="certificate" id="certificate">
         <div class="certificate-content">
           <h3>🏆 Sertifikat Prestasi</h3>
@@ -77,12 +67,11 @@
           <h4 id="certificateName"></h4>
           <p><strong>Asal Sekolah:</strong> <span id="certificateSchool"></span></p>
           <p>Atas antusias dan prestasi luar biasanya dalam mengerjakan</p>
-          <p id="certificateTitle"><strong>Kuis Matematika - Penjumlahan</strong></p>
+          <p><strong>Kuis Matematika - Penjumlahan</strong></p>
           <div class="score" id="certificateScore">0</div>
           <p id="certificateDate"></p>
           <div class="stars" id="certificateStars">
-            <!-- Stars will be dynamically added -->
-          </div>
+            </div>
           <div class="certificate-footer">
             <p>Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com</p>
           </div>
@@ -98,9 +87,8 @@
     </div>
   </div>
 
-  <!-- Canvas untuk download -->
   <canvas id="downloadCanvas" width="1200" height="800"></canvas>
-
+  
   <script src="script.js"></script>
 </body>
 </html>
