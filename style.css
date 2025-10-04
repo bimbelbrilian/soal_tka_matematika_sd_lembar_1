@@ -115,6 +115,7 @@ h1 {
   font-size: 16px;
   transition: all 0.3s ease;
   background: white;
+  margin-bottom: 15px; /* Added margin for school input */
 }
 
 .identity-box input:focus {
@@ -344,7 +345,7 @@ input[type="radio"] {
 }
 
 .hidden { 
-  display: none; 
+  display: none !important; 
 }
 
 .quiz-controls {
