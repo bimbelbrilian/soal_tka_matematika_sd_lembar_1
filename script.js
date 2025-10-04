@@ -1,773 +1,772 @@
-// ================================
-// KONFIGURASI KUIS - EDIT BAGIAN INI SAJA
-// ================================
-const quizConfig = {
-  title: "Soal TKA Matematika SD",
-  subject: "Lembar 1",
-  description: "Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com"
-};
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --secondary: #10b981;
+  --secondary-dark: #059669;
+  --accent: #f59e0b;
+  --danger: #ef4444;
+  --light: #f8fafc;
+  --dark: #1e293b;
+  --gray: #64748b;
+}
 
-const questionBank = [
-  { question: "Hasil dari 7 + 8 adalah...", options: ["14", "15", "16", "17"], answer: "15" },
-  { question: "Hasil dari 14 + 9 adalah...", options: ["22", "23", "24", "25"], answer: "23" },
-  { question: "Hasil dari 27 + 15 adalah...", options: ["41", "42", "43", "44"], answer: "42" },
-  { question: "Hasil dari 36 + 22 adalah...", options: ["57", "58", "59", "60"], answer: "58" },
-  { question: "Hasil dari 45 + 32 adalah...", options: ["76", "77", "78", "79"], answer: "77" },
-  { question: "Hasil dari 58 + 36 adalah...", options: ["93", "94", "95", "96"], answer: "94" },
-  { question: "Hasil dari 67 + 48 adalah...", options: ["114", "115", "116", "117"], answer: "115" },
-  { question: "Hasil dari 89 + 43 adalah...", options: ["131", "132", "133", "134"], answer: "132" },
-  { question: "Hasil dari 97 + 59 adalah...", options: ["155", "156", "157", "158"], answer: "156" },
-  { question: "Hasil dari 125 + 59 adalah...", options: ["183", "184", "185", "186"], answer: "184" }
-];
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-// ================================
-// VARIABEL GLOBAL
-// ================================
-let timerInterval;
-let timeLeft = 0;
-let currentQuestions = [];
-let isSubmitted = false;
-let soundEnabled = true;
-let voiceEnabled = false;
-let audioContext = null;
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  padding: 20px;
+  line-height: 1.6;
+}
 
-// ================================
-// FUNGSI UTAMA - DIPERBAIKI
-// ================================
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  overflow: hidden;
+  animation: slideUp 0.6s ease-out;
+}
 
-// Initialize Audio Context dengan error handling
-function initializeAudioContext() {
-  try {
-    if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    return audioContext;
-  } catch (error) {
-    console.log('Web Audio API tidak didukung di browser ini');
-    soundEnabled = false;
-    document.getElementById('soundToggle').textContent = '🔇 Sound';
-    return null;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-// Update semua judul secara dinamis
-function updateQuizTitles() {
-  const fullTitle = `Kuis ${quizConfig.subject} - ${quizConfig.title}`;
-  
-  document.getElementById('dynamicTitle').textContent = fullTitle;
-  document.getElementById('quizTitle').textContent = `🧮 ${fullTitle}`;
-  document.getElementById('quizSubtitle').textContent = quizConfig.description;
-  document.getElementById('resultTitle').innerHTML = `<strong>${fullTitle}</strong>`;
-  document.getElementById('certificateTitle').innerHTML = `<strong>${fullTitle}</strong>`;
+.header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-// Sound Effects menggunakan Web Audio API - DIPERBAIKI
-function playSound(frequency, duration, type = 'sine') {
-  if (!soundEnabled) return;
-  
-  const context = initializeAudioContext();
-  if (!context) return;
-  
-  try {
-    if (context.state === 'suspended') {
-      context.resume().catch(() => {
-        console.log('Audio context tidak dapat diresume');
-        return;
-      });
-    }
-    
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-    
-    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
-    oscillator.type = type;
-    
-    gainNode.gain.setValueAtTime(0.3, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + duration);
-    
-    oscillator.start(context.currentTime);
-    oscillator.stop(context.currentTime + duration);
-  } catch (error) {
-    console.log('Sound error:', error);
-    soundEnabled = false;
-    document.getElementById('soundToggle').textContent = '🔇 Sound';
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: float 20s infinite linear;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-20px, -20px) rotate(360deg); }
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+  position: relative;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  position: relative;
+}
+
+.identity-box {
+  background: linear-gradient(135deg, #eef2ff, #f0f9ff);
+  border: 2px solid #c7d2fe;
+  border-radius: 15px;
+  padding: 25px;
+  margin: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.identity-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.identity-box label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.identity-box input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.identity-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  outline: none;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 5px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+button:disabled::before {
+  display: none;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+button:hover::before {
+  left: 100%;
+}
+
+#startBtn { 
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white; 
+  font-size: 18px; 
+  display: block; 
+  margin: 25px auto;
+  padding: 18px 40px;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+#startBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+}
+
+#submitBtn { 
+  background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+#retryBtn { 
+  background: linear-gradient(135deg, var(--danger), #dc2626);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+#wrongBtn { 
+  background: linear-gradient(135deg, var(--accent), #eab308);
+  color: black;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+#certificateBtn, #downloadBtn, #shareBtn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+#soundToggle, #voiceBtn {
+  background: linear-gradient(135deg, #64748b, #475569);
+  color: white;
+  box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+  font-size: 12px;
+  padding: 8px 12px;
+}
+
+#voiceBtn.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  animation: pulseVoice 2s infinite;
+}
+
+@keyframes pulseVoice {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.question {
+  border: 2px solid #e2e8f0;
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 25px;
+  background: white;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.question::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.question:hover::before {
+  width: 6px;
+}
+
+.question p {
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--dark);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  position: relative;
+  padding-right: 40px;
+}
+
+.question p:hover {
+  color: var(--primary);
+}
+
+.voice-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #f1f5f9;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.voice-enabled .voice-indicator {
+  opacity: 1;
+  background: #d1fae5;
+  color: #059669;
+}
+
+.question p:hover .voice-indicator {
+  background: #e0e7ff;
+}
+
+.voice-enabled .question p:hover .voice-indicator {
+  background: #a7f3d0;
+}
+
+label {
+  display: block;
+  padding: 12px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  position: relative;
+}
+
+label:hover {
+  border-color: var(--primary);
+  background: #f8fafc;
+  transform: translateX(5px);
+}
+
+input[type="radio"] {
+  margin-right: 12px;
+  transform: scale(1.2);
+}
+
+.feedback {
+  font-weight: bold;
+  margin-top: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.benar { 
+  color: var(--secondary-dark);
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+}
+
+.salah { 
+  color: var(--danger);
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.hidden { 
+  display: none; 
+}
+
+.quiz-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+#timer {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--danger);
+  background: #fef2f2;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 2px solid #fecaca;
+  animation: pulse 2s infinite;
+  flex: 1;
+  min-width: 200px;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.feature-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.result-box {
+  display: none;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 3px solid gold;
+  border-radius: 20px;
+  padding: 30px;
+  margin: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: zoomIn 0.6s ease;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-function playSelectSound() {
-  playSound(392, 0.1);
+.result-box img.logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  animation: bounce 2s infinite;
 }
 
-function playCorrectSound() {
-  playSound(523.25, 0.2);
-  setTimeout(() => playSound(659.25, 0.2), 150);
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-function playWrongSound() {
-  playSound(220, 0.3, 'square');
+.result-box h2 {
+  color: var(--primary);
+  margin-bottom: 10px;
+  font-size: 2rem;
 }
 
-function playCompleteSound() {
-  playSound(523.25, 0.2);
-  setTimeout(() => playSound(659.25, 0.2), 200);
-  setTimeout(() => playSound(783.99, 0.4), 400);
+.result-box .score {
+  font-size: 4rem;
+  font-weight: bold;
+  color: var(--secondary);
+  margin: 20px 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  animation: countUp 1.5s ease-out;
 }
 
-function playTimerSound() {
-  playSound(330, 0.1);
+@keyframes countUp {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-// Text-to-Speech - DIPERBAIKI (Security Fix)
-function speakQuestion(element) {
-  if (!voiceEnabled) return;
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.star {
+  font-size: 2.5rem;
+  color: #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.star.filled {
+  color: gold;
+  animation: starPop 0.5s ease;
+}
+
+@keyframes starPop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.certificate {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 3px solid gold;
+  border-radius: 20px;
+  padding: 40px 30px;
+  margin: 20px 0;
+  text-align: center;
+  display: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.certificate::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,215,0,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: float 30s infinite linear;
+}
+
+.certificate-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  border: 2px solid #e2e8f0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.certificate h3 {
+  color: var(--primary);
+  margin-bottom: 25px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.certificate-footer {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e8f0;
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+.feature-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    margin: 10px;
+    border-radius: 15px;
+  }
   
-  // Ambil teks dengan aman dari DOM
-  const questionText = element.textContent.replace(/^\d+\.\s*/, '');
-  speakText(questionText);
-}
-
-function speakText(text) {
-  if (!voiceEnabled) return;
+  .header {
+    padding: 20px;
+  }
   
-  if ('speechSynthesis' in window) {
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = 'id-ID';
-    speech.rate = 0.9;
-    speech.pitch = 1;
-    speech.volume = 1;
-    
-    // Error handling
-    speech.onerror = function(event) {
-      console.log('Text-to-speech error:', event.error);
-    };
-    
-    window.speechSynthesis.speak(speech);
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .identity-box, .question {
+    margin: 15px;
+  }
+  
+  button {
+    padding: 10px 15px;
+    font-size: 12px;
+  }
+  
+  #startBtn {
+    padding: 15px 30px;
+  }
+  
+  .result-box .score {
+    font-size: 3rem;
+  }
+  
+  .stars .star {
+    font-size: 2rem;
+  }
+  
+  .certificate {
+    padding: 25px 20px;
+  }
+  
+  .certificate-content {
+    padding: 20px;
+  }
+  
+  .quiz-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  #timer {
+    min-width: auto;
+  }
+  
+  .feature-controls {
+    justify-content: center;
   }
 }
 
-// Update tampilan indikator suara
-function updateVoiceIndicator() {
-  const questions = document.querySelectorAll('.question');
-  const voiceBtn = document.getElementById('voiceBtn');
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
   
-  if (voiceEnabled) {
-    document.getElementById('quizContent').classList.add('voice-enabled');
-    voiceBtn.classList.add('active');
-    voiceBtn.innerHTML = '🔊 Baca Soal';
-    
-    questions.forEach(question => {
-      const questionText = question.querySelector('p');
-      if (!questionText.querySelector('.voice-indicator')) {
-        const indicator = document.createElement('span');
-        indicator.className = 'voice-indicator';
-        indicator.innerHTML = '🔊';
-        questionText.appendChild(indicator);
-      }
-    });
-  } else {
-    document.getElementById('quizContent').classList.remove('voice-enabled');
-    voiceBtn.classList.remove('active');
-    voiceBtn.innerHTML = '🎤 Baca Soal';
-    
-    // Stop any ongoing speech when disabled
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    
-    questions.forEach(question => {
-      const indicator = question.querySelector('.voice-indicator');
-      if (indicator) {
-        indicator.remove();
-      }
-    });
+  h1 {
+    font-size: 1.7rem;
+  }
+  
+  .question p {
+    font-size: 1.1rem;
+  }
+  
+  label {
+    padding: 10px 12px;
   }
 }
 
-// Progress Saving - DIPERBAIKI (Validation)
-function saveProgress() {
-  try {
-    const progress = {
-      name: document.getElementById('name').value,
-      school: document.getElementById('school').value,
-      currentQuestion: currentQuestions.length > 0 ? currentQuestions.map((q, index) => {
-        const questionDiv = document.querySelector(`.question:nth-child(${index + 1})`);
-        const selected = questionDiv ? questionDiv.querySelector('input[type="radio"]:checked') : null;
-        return {
-          question: q.question,
-          selectedAnswer: selected ? selected.value : null,
-          isCorrect: selected ? selected.value === q.answer : false
-        };
-      }) : [],
-      timeLeft: timeLeft,
-      timestamp: new Date().getTime(),
-      version: '1.0' // Untuk validasi
-    };
-    
-    localStorage.setItem('quizProgress', JSON.stringify(progress));
-    updateProgressIndicator('Progress tersimpan!');
-  } catch (error) {
-    console.error('Error saving progress:', error);
+.button-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.achievement-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 5px;
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+#downloadCanvas {
+  display: none;
+}
+
+.progress-indicator {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 0.9rem;
+  color: var(--gray);
+}
+
+/* ================================
+   PERBAIKAN TAMBAHAN UNTUK ACCESSIBILITY
+   ================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-function loadProgress() {
-  try {
-    const saved = localStorage.getItem('quizProgress');
-    if (saved) {
-      const progress = JSON.parse(saved);
-      
-      // Validasi data
-      if (!progress.name || !progress.school || !progress.timestamp || !progress.version) {
-        localStorage.removeItem('quizProgress');
-        return null;
-      }
-      
-      const oneHour = 60 * 60 * 1000;
-      if (new Date().getTime() - progress.timestamp < oneHour) {
-        document.getElementById('name').value = progress.name || '';
-        document.getElementById('school').value = progress.school || '';
-        updateProgressIndicator('Progress sebelumnya ditemukan! Klik "Lanjutkan" untuk melanjutkan.');
-        return progress;
-      } else {
-        localStorage.removeItem('quizProgress');
-      }
-    }
-  } catch (error) {
-    console.error('Error loading progress:', error);
-    localStorage.removeItem('quizProgress');
-  }
-  return null;
+/* Focus styles untuk accessibility */
+button:focus, 
+input:focus, 
+label:focus-within {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-function updateProgressIndicator(message) {
-  const indicator = document.getElementById('progressIndicator');
-  indicator.textContent = message;
-  indicator.style.display = 'block';
-  
-  setTimeout(() => {
-    indicator.style.display = 'none';
-  }, 3000);
-}
-
-// Helper function untuk copy to clipboard - DIPERBAIKI
-async function copyToClipboard(text) {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } else {
-      // Fallback untuk HTTP atau browser lama
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      textArea.style.pointerEvents = 'none';
-      document.body.appendChild(textArea);
-      textArea.select();
-      const result = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return result;
-    }
-  } catch (error) {
-    console.error('Copy failed:', error);
-    return false;
+/* High contrast support */
+@media (prefers-contrast: high) {
+  :root {
+    --primary: #0000ff;
+    --primary-dark: #0000cc;
+    --secondary: #008000;
+    --secondary-dark: #006400;
+    --danger: #ff0000;
+    --accent: #ffa500;
   }
 }
 
-// Show notification - FUNCTION BARU
-function showNotification(message, type = 'info') {
-  // Hapus notifikasi sebelumnya
-  const existingNotification = document.querySelector('.custom-notification');
-  if (existingNotification) {
-    existingNotification.remove();
+/* Notification animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
   }
-  
-  const notification = document.createElement('div');
-  notification.className = `custom-notification ${type}`;
-  notification.textContent = message;
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6'};
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10000;
-    animation: slideInRight 0.3s ease;
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.animation = 'slideOutRight 0.3s ease';
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
-}
-
-// Social Sharing - DIPERBAIKI
-async function shareResults() {
-  const score = document.getElementById('score').textContent;
-  const name = document.getElementById('studentName').textContent;
-  const text = `🎉 ${name} berhasil mendapatkan nilai ${score}% dalam Kuis ${quizConfig.subject} - ${quizConfig.title} dari Bimbel Brilian! 🧮✨`;
-  
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: `Hasil Kuis ${quizConfig.subject} Bimbel Brilian`,
-        text: text,
-        url: window.location.href
-      });
-    } else {
-      const copied = await copyToClipboard(text);
-      if (copied) {
-        showNotification('📋 Hasil berhasil disalin ke clipboard!', 'success');
-      } else {
-        showNotification('❌ Gagal menyalin hasil. Silakan salin manual.', 'error');
-      }
-    }
-  } catch (error) {
-    if (error.name !== 'AbortError') {
-      console.log('Error sharing:', error);
-      showNotification('❌ Gagal membagikan hasil. Silakan salin manual.', 'error');
-    }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
-// Fisher-Yates Shuffle Algorithm
-function shuffleArray(array) {
-  const newArray = [...array];
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
   }
-  return newArray;
-}
-
-// Initialize Event Listeners
-function initializeEventListeners() {
-  document.getElementById('startBtn').addEventListener('click', startQuiz);
-  document.getElementById('soundToggle').addEventListener('click', toggleSound);
-  document.getElementById('voiceBtn').addEventListener('click', toggleVoice);
-  document.getElementById('shareBtn').addEventListener('click', shareResults);
-  
-  setupResultButtonListeners();
-}
-
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  const button = document.getElementById('soundToggle');
-  button.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound';
-  
-  if (soundEnabled) {
-    playSound(440, 0.1);
+  to {
+    transform: translateX(100%);
+    opacity: 0;
   }
 }
 
-function toggleVoice() {
-  voiceEnabled = !voiceEnabled;
-  updateVoiceIndicator();
+/* No JavaScript fallback */
+.no-js .hidden {
+  display: block !important;
+}
+
+.no-js button {
+  display: none !important;
+}
+
+.no-js .no-js-message {
+  display: block;
+  background: var(--danger);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  margin: 20px;
+}
+
+/* Print styles untuk sertifikat */
+@media print {
+  body * {
+    visibility: hidden;
+  }
   
-  if (voiceEnabled) {
-    speakText('Fitur suara diaktifkan. Klik pada soal untuk mendengarkan pertanyaan.');
-  } else {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
+  .certificate,
+  .certificate * {
+    visibility: visible;
+  }
+  
+  .certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none;
+  }
+  
+  button {
+    display: none !important;
   }
 }
 
-// Setup event listeners untuk tombol hasil
-function setupResultButtonListeners() {
-  const certificateBtn = document.getElementById('certificateBtn');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const retryResultBtn = document.getElementById('retryResultBtn');
-  const wrongResultBtn = document.getElementById('wrongResultBtn');
-  
-  certificateBtn.replaceWith(certificateBtn.cloneNode(true));
-  downloadBtn.replaceWith(downloadBtn.cloneNode(true));
-  retryResultBtn.replaceWith(retryResultBtn.cloneNode(true));
-  wrongResultBtn.replaceWith(wrongResultBtn.cloneNode(true));
-  
-  document.getElementById('certificateBtn').addEventListener('click', toggleCertificate);
-  document.getElementById('downloadBtn').addEventListener('click', downloadCertificate);
-  document.getElementById('retryResultBtn').addEventListener('click', retryQuiz);
-  document.getElementById('wrongResultBtn').addEventListener('click', showWrong);
+/* Improved radio button accessibility */
+input[type="radio"]:focus + span {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-function startQuiz() {
-  const name = document.getElementById("name").value.trim();
-  const school = document.getElementById("school").value.trim();
-  
-  if (!name || !school) {
-    showNotification("Silakan isi nama dan asal sekolah terlebih dahulu!", "error");
-    return;
-  }
-
-  document.getElementById("startBtn").style.display = "none";
-  document.getElementById("quizContent").classList.remove("hidden");
-  document.getElementById("quizControls").classList.remove("hidden");
-  document.getElementById("timer").classList.remove("hidden");
-
-  isSubmitted = false;
-  generateQuestions();
-
-  timeLeft = currentQuestions.length * 5 * 60;
-
-  const progressInterval = setInterval(() => {
-    if (!isSubmitted) {
-      saveProgress();
-    } else {
-      clearInterval(progressInterval);
-    }
-  }, 30000);
-
-  updateTimer();
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimer();
-    
-    if (timeLeft <= 60 && timeLeft % 10 === 0) {
-      playTimerSound();
-    }
-    
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      submitQuiz();
-    }
-  }, 1000);
-
-  playSound(523.25, 0.3);
+/* Better contrast for feedback messages */
+.feedback.benar {
+  color: #065f46 !important;
 }
 
-function generateQuestions() {
-  const quizContent = document.getElementById("quizContent");
-  quizContent.innerHTML = '';
-  
-  currentQuestions = [...questionBank];
-  
-  currentQuestions.forEach((q, index) => {
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'question';
-    questionDiv.dataset.answer = q.answer;
-    
-    const shuffledOptions = shuffleArray([...q.options]);
-    const optionLetters = ['a', 'b', 'c', 'd'];
-    
-    let optionsHTML = '';
-    shuffledOptions.forEach((option, optIndex) => {
-      optionsHTML += `
-        <label>
-          <input type="radio" name="q${index + 1}" value="${option}">
-          ${optionLetters[optIndex]}. ${option}
-        </label>
-      `;
-    });
-    
-    questionDiv.innerHTML = `
-      <p onclick="speakQuestion(this)">${index + 1}. ${q.question}</p>
-      ${optionsHTML}
-      <p class="feedback"></p>
-    `;
-    
-    quizContent.appendChild(questionDiv);
-  });
-
-  updateVoiceIndicator();
-
-  setTimeout(() => {
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-      radio.addEventListener('change', function() {
-        if (this.checked) {
-          playSelectSound();
-          saveProgress(); // Auto-save ketika menjawab
-        }
-      });
-    });
-  }, 100);
-
-  const buttonGroup = document.createElement('div');
-  buttonGroup.className = 'button-group';
-  buttonGroup.innerHTML = `
-    <button id="submitBtn">✅ Koreksi Jawaban</button>
-    <button id="retryBtn" class="hidden">🔄 Kerjakan Ulang</button>
-    <button id="wrongBtn" class="hidden">📝 Lihat Hasil Salah Saja</button>
-  `;
-  quizContent.appendChild(buttonGroup);
-
-  document.getElementById('submitBtn').addEventListener('click', submitQuiz);
-  document.getElementById('retryBtn').addEventListener('click', retryQuiz);
-  document.getElementById('wrongBtn').addEventListener('click', showWrong);
+.feedback.salah {
+  color: #7f1d1d !important;
 }
 
-function updateTimer() {
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  document.getElementById("time").textContent =
-    `${minutes.toString().padStart(2,"0")}:${seconds.toString().padStart(2,"0")}`;
+/* Loading state untuk buttons */
+button.loading {
+  position: relative;
+  color: transparent;
 }
 
-function submitQuiz() {
-  if (isSubmitted) return;
-  
-  isSubmitted = true;
-  const submitBtn = document.getElementById("submitBtn");
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.style.display = 'none';
-  }
-  
-  clearInterval(timerInterval);
-  let correct = 0;
-  let wrong = 0;
-  let wrongList = [];
-
-  document.querySelectorAll(".question").forEach((q, index) => {
-    const answer = q.dataset.answer;
-    const selected = q.querySelector("input[type='radio']:checked");
-    const feedback = q.querySelector(".feedback");
-    const options = q.querySelectorAll("input[type='radio']");
-
-    options.forEach(opt => {
-      opt.disabled = true;
-      if (opt.value === answer) opt.parentElement.style.background = "#d1fae5";
-      if (selected && opt === selected && opt.value !== answer) {
-        opt.parentElement.style.background = "#fee2e2";
-      }
-    });
-
-    if (selected) {
-      if (selected.value === answer) {
-        correct++;
-        feedback.textContent = "✅ Jawaban Benar!";
-        feedback.className = "feedback benar";
-        playCorrectSound();
-      } else {
-        wrong++;
-        wrongList.push(index + 1);
-        feedback.textContent = "❌ Jawaban Salah";
-        feedback.className = "feedback salah";
-        playWrongSound();
-      }
-    } else {
-      wrong++;
-      wrongList.push(index + 1);
-      feedback.textContent = "⏰ Belum dijawab";
-      feedback.className = "feedback salah";
-      playWrongSound();
-    }
-  });
-
-  const total = correct + wrong;
-  const nilai = Math.round((correct / total) * 100);
-
-  document.getElementById("studentName").textContent = document.getElementById("name").value;
-  document.getElementById("studentSchool").textContent = document.getElementById("school").value;
-  document.getElementById("score").textContent = nilai;
-  document.getElementById("summary").textContent =
-    `Jawaban Benar: ${correct} | Jawaban Salah: ${wrong}`;
-  document.getElementById("wrongNumbers").textContent =
-    wrongList.length > 0 ? `Soal yang salah: ${wrongList.join(", ")}` : "🎊 Semua soal benar!";
-
-  const today = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const tanggal = today.toLocaleDateString('id-ID', options);
-  document.getElementById("tanggal").textContent = `Dikerjakan pada ${tanggal}`;
-
-  updateStars(nilai, "starContainer");
-  updateAchievements(nilai, correct, total);
-
-  document.getElementById("certificateName").textContent = document.getElementById("name").value;
-  document.getElementById("certificateSchool").textContent = document.getElementById("school").value;
-  document.getElementById("certificateScore").textContent = nilai;
-  document.getElementById("certificateDate").textContent = `Tanggal: ${tanggal}`;
-  updateStars(nilai, "certificateStars");
-
-  setupResultButtonListeners();
-
-  document.getElementById("retryBtn").classList.remove("hidden");
-  document.getElementById("wrongBtn").classList.remove("hidden");
-  
-  document.getElementById("result").style.display = "block";
-  document.getElementById("retryResultBtn").classList.remove("hidden");
-  document.getElementById("wrongResultBtn").classList.remove("hidden");
-
-  playCompleteSound();
-  localStorage.removeItem('quizProgress');
+button.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-function updateStars(score, containerId) {
-  const starContainer = document.getElementById(containerId);
-  starContainer.innerHTML = '';
-  
-  const totalStars = 5;
-  const filledStars = Math.round((score / 100) * totalStars);
-  
-  for (let i = 0; i < totalStars; i++) {
-    const star = document.createElement('div');
-    star.className = `star ${i < filledStars ? 'filled' : ''}`;
-    star.innerHTML = '★';
-    starContainer.appendChild(star);
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
-
-function updateAchievements(score, correct, total) {
-  const achievementsContainer = document.getElementById("achievements");
-  achievementsContainer.innerHTML = '';
-  
-  const achievements = [];
-  
-  if (score === 100) {
-    achievements.push('🏆 Perfect Score!');
-  }
-  if (score >= 90) {
-    achievements.push('⭐ Excellent!');
-  }
-  if (score >= 80) {
-    achievements.push('👍 Great Job!');
-  }
-  if (correct === total) {
-    achievements.push('🎯 All Correct!');
-  }
-  if (score >= 70) {
-    achievements.push('💪 Good Effort!');
-  }
-  
-  achievements.forEach(achievement => {
-    const badge = document.createElement('span');
-    badge.className = 'achievement-badge';
-    badge.textContent = achievement;
-    achievementsContainer.appendChild(badge);
-  });
-}
-
-function toggleCertificate() {
-  const certificate = document.getElementById("certificate");
-  certificate.style.display = certificate.style.display === 'none' ? 'block' : 'none';
-}
-
-function downloadCertificate() {
-  try {
-    const canvas = document.getElementById('downloadCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, '#fffbeb');
-    gradient.addColorStop(1, '#fef3c7');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.strokeStyle = 'gold';
-    ctx.lineWidth = 10;
-    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-    
-    ctx.fillStyle = '#4f46e5';
-    ctx.font = 'bold 60px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🏆 Sertifikat Prestasi', canvas.width / 2, 120);
-    
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '30px Arial';
-    ctx.fillText('Diberikan kepada:', canvas.width / 2, 200);
-    
-    ctx.fillStyle = '#4f46e5';
-    ctx.font = 'bold 40px Arial';
-    ctx.fillText(document.getElementById("name").value, canvas.width / 2, 260);
-    
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '25px Arial';
-    ctx.fillText(`Asal Sekolah: ${document.getElementById("school").value}`, canvas.width / 2, 310);
-    ctx.fillText('Atas antusias dan prestasi luar biasanya dalam mengerjakan', canvas.width / 2, 360);
-    
-    ctx.font = 'bold 30px Arial';
-    ctx.fillText(`Kuis ${quizConfig.subject} - ${quizConfig.title}`, canvas.width / 2, 410);
-    
-    const score = document.getElementById("score").textContent;
-    ctx.fillStyle = '#10b981';
-    ctx.font = 'bold 80px Arial';
-    ctx.fillText(score, canvas.width / 2, 500);
-    
-    ctx.fillStyle = '#64748b';
-    ctx.font = '20px Arial';
-    ctx.fillText(document.getElementById("certificateDate").textContent, canvas.width / 2, 560);
-    
-    const starCount = Math.round((parseInt(score) / 100) * 5);
-    const starSize = 40;
-    const starSpacing = 60;
-    const totalWidth = 5 * starSpacing;
-    const startX = (canvas.width - totalWidth) / 2 + starSpacing / 2;
-    
-    for (let i = 0; i < 5; i++) {
-      ctx.fillStyle = i < starCount ? 'gold' : '#e2e8f0';
-      ctx.font = `${starSize}px Arial`;
-      ctx.fillText('★', startX + i * starSpacing, 620);
-    }
-    
-    ctx.fillStyle = '#64748b';
-    ctx.font = '18px Arial';
-    ctx.fillText('Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com', canvas.width / 2, 700);
-    
-    const link = document.createElement('a');
-    const fileName = `sertifikat-${document.getElementById("name").value.replace(/\s+/g, '-')}-${score}.jpg`;
-    link.download = fileName;
-    link.href = canvas.toDataURL('image/jpeg', 0.9);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    showNotification('📥 Sertifikat berhasil diunduh!', 'success');
-  } catch (error) {
-    console.error('Error downloading certificate:', error);
-    showNotification('❌ Gagal mengunduh sertifikat', 'error');
-  }
-}
-
-function retryQuiz() {
-  document.getElementById("result").style.display = "none";
-  document.getElementById("certificate").style.display = "none";
-  
-  document.getElementById("quizContent").classList.add("hidden");
-  document.getElementById("quizControls").classList.add("hidden");
-  document.getElementById("startBtn").style.display = "block";
-}
-
-function showWrong() {
-  document.querySelectorAll(".question").forEach((q, index) => {
-    const selected = q.querySelector("input[type='radio']:checked");
-    const answer = q.dataset.answer;
-    if (selected && selected.value === answer) {
-      q.style.display = "none";
-    } else {
-      q.style.display = "block";
-    }
-  });
-}
-
-// Initialize aplikasi saat DOM siap
-document.addEventListener('DOMContentLoaded', function() {
-  updateQuizTitles();
-  initializeEventListeners();
-  
-  // Initialize audio context saat user interaction
-  document.addEventListener('click', function initAudio() {
-    initializeAudioContext();
-    document.removeEventListener('click', initAudio);
-  }, { once: true });
-  
-  const savedProgress = loadProgress();
-  if (savedProgress) {
-    document.getElementById('startBtn').textContent = '🚀 LANJUTKAN KUIS';
-  }
-  
-  // Fallback untuk browser tanpa JavaScript
-  document.body.classList.remove('no-js');
-});
