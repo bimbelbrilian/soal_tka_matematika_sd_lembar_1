@@ -3,14 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="dynamicTitle">Kuis Matematika - Penjumlahan</title>
+  <title>Kuis Matematika - Penjumlahan</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Initial no-js state */
+    .no-js-message { display: none; }
+  </style>
 </head>
 <body>
+  <noscript>
+    <div class="no-js-message">
+      <h2>⚠️ JavaScript Diperlukan</h2>
+      <p>Kuis ini membutuhkan JavaScript untuk berfungsi dengan baik. Silakan aktifkan JavaScript di browser Anda.</p>
+    </div>
+  </noscript>
+
   <div class="container">
     <div class="header">
-      <h1 id="quizTitle">🧮 Kuis Matematika - Penjumlahan</h1>
-      <p id="quizSubtitle" class="subtitle">Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com</p>
+      <h1 id="quizTitle">🧮 Memuat Kuis...</h1>
+      <p id="quizSubtitle" class="subtitle">Memuat...</p>
     </div>
 
     <!-- Identitas -->
@@ -48,7 +59,7 @@
       <img src="https://bimbelbrilian.com/wp-content/uploads/2025/10/Logo-bimbelbrilian-2025-scaled.png" 
            alt="Logo Bimbel Brilian" class="logo">
       <h2>🎉 Hasil Penilaian</h2>
-      <p id="resultTitle"><strong>Kuis Matematika - Penjumlahan</strong></p>
+      <p id="resultTitle"><strong>Memuat judul kuis...</strong></p>
       <p><strong>Nama:</strong> <span id="studentName"></span></p>
       <p><strong>Asal Sekolah:</strong> <span id="studentSchool"></span></p>
       
@@ -77,7 +88,7 @@
           <h4 id="certificateName"></h4>
           <p><strong>Asal Sekolah:</strong> <span id="certificateSchool"></span></p>
           <p>Atas antusias dan prestasi luar biasanya dalam mengerjakan</p>
-          <p id="certificateTitle"><strong>Kuis Matematika - Penjumlahan</strong></p>
+          <p id="certificateTitle"><strong>Memuat judul kuis...</strong></p>
           <div class="score" id="certificateScore">0</div>
           <p id="certificateDate"></p>
           <div class="stars" id="certificateStars">
