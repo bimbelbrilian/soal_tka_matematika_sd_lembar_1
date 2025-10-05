@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOAL TKA MATEMATIKA SD/MI BIMBEL BRILIAN</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 id="judul-kuis">SOAL TKA MATEMATIKA SD/MI BIMBEL BRILIAN</h1>
+            <div class="credit">
+                Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com
+            </div>
+        </header>
+
+        <!-- Sticky Progress & Timer -->
+        <div id="sticky-header" class="sticky-header hidden">
+            <div class="sticky-content">
+                <div class="timer-container">
+                    <div class="timer-icon">⏰</div>
+                    <div class="timer-display">
+                        <span id="timer-minutes">20</span>:<span id="timer-seconds">00</span>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <span class="progress-text" id="progress-text">0/10</span>
+                </div>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <!-- Form Identitas -->
+            <div id="identitas-container" class="identitas-container">
+                <div class="identitas-card">
+                    <h2>📝 Identitas Peserta</h2>
+                    <form id="form-identitas">
+                        <div class="form-group">
+                            <label for="nama">Nama Lengkap:</label>
+                            <input type="text" id="nama" name="nama" required placeholder="Masukkan nama lengkap">
+                        </div>
+                        <div class="form-group">
+                            <label for="sekolah">Asal Sekolah:</label>
+                            <input type="text" id="sekolah" name="sekolah" required placeholder="Masukkan asal sekolah">
+                        </div>
+                        <button type="submit" class="btn-start">
+                            🚀 Mulai Mengerjakan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner">⏳</div>
+                <p>Memuat soal...</p>
+            </div>
+
+            <!-- Info Peserta -->
+            <div id="info-peserta" class="info-peserta hidden">
+                <div class="participant-info">
+                    <h3>Peserta: <span id="participant-name"></span></h3>
+                    <p>Sekolah: <span id="participant-school"></span></p>
+                </div>
+            </div>
+
+            <!-- Soal Container -->
+            <div id="soal-container" class="soal-container hidden">
+                <!-- Soal akan dimuat di sini oleh JavaScript -->
+            </div>
+
+
+            <!-- Results Box - DIPERBAIKI -->
+            <div id="results-box" class="results-box hidden">
+                <div class="result-header">
+                    <div class="trophy">🏆</div>
+                    <h2>Hasil Pengerjaan Soal</h2>
+                    <div class="decoration-stars">
+                        <span>✨</span><span>⭐</span><span>✨</span>
+                    </div>
+                    <div class="credit credit-result">
+                        Dibuat oleh Bimbel Brilian - www.bimbelbrilian.com
+                    </div>
+                </div>
+                
+                <div class="result-body">
+                    <div class="quiz-title-card">
+                        <h3 id="result-quiz-title">Kuis Matematika Dasar</h3>
+                    </div>
+                    
+                    <div class="participant-card">
+                        <div class="participant-avatar">👤</div>
+                        <div class="participant-details">
+                            <h4 id="result-name">Nama Siswa</h4>
+                            <p id="result-school">Asal Sekolah</p>
+                        </div>
+                    </div>
+                    
+                    <div class="score-display">
+                        <div class="main-score">
+                            <span class="score-label">NILAI</span>
+                            <span class="score-value" id="score-value">0</span>
+                            <div class="score-scale">Skala 1-100</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card correct-stat">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="stat-correct">0</span>
+                                <span class="stat-label">Jawaban Benar</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card incorrect-stat">
+                            <div class="stat-icon">❌</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="stat-incorrect">0</span>
+                                <span class="stat-label">Jawaban Salah</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-bar">
+                        <div class="performance-fill" id="performance-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div id="action-buttons" class="action-buttons hidden">
+                <button id="retry-btn" class="btn-retry">
+                    🔄 Ulangi Tes
+                </button>
+                <button id="certificate-btn" class="btn-certificate">
+                    📜 Download Sertifikat
+                </button>
+            </div>
+
+<!-- Custom Confirmation Modal -->
+<div id="confirm-modal" class="confirm-modal hidden">
+    <div class="confirm-modal-content">
+        <div class="confirm-header">
+            <div class="confirm-icon">📝</div>
+            <h3>Konfirmasi Pengumpulan</h3>
+        </div>
+        
+        <div class="confirm-body">
+            <p>Anda telah menjawab <strong id="confirmed-answered">0</strong> dari <strong id="confirmed-total">10</strong> soal.</p>
+            <p>Apakah Anda yakin ingin mengumpulkan jawaban?</p>
+            <p class="confirm-warning">⚠️ Setelah dikumpulkan, Anda tidak dapat mengubah jawaban lagi.</p>
+        </div>
+        
+        <div class="confirm-buttons">
+            <button id="confirm-cancel" class="btn-cancel">❌ Batal</button>
+            <button id="confirm-submit" class="btn-confirm">✅ Ya, Kumpulkan!</button>
+        </div>
+    </div>
+</div>
+
+
+
+            <!-- Detail Hasil -->
+            <div id="detail-results" class="detail-results hidden">
+                <!-- Detail hasil akan dimuat di sini -->
+            </div>
+        </main>
+
+        <footer class="footer">
+            <button id="submit-btn" class="btn-submit hidden">
+                📤 Koreksi Jawaban
+            </button>
+        </footer>
+    </div>
+
+    <!-- Canvas untuk Sertifikat -->
+    <canvas id="certificate-canvas" style="display: none;"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
