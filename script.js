@@ -1,7 +1,7 @@
 class KuisMatematika {
     constructor() {
         this.soalData = {
-            "judul-soal": "Latihan Soal TKA Matematika SD Versi Pilihan Ganda - Lembar 1",
+            "judul-soal002": "Latihan Soal TKA Matematika SD Versi Pilihan Ganda - Lembar 1",
   "soal": [
     {
       "id": "soal001-nomor001",
@@ -1231,3 +1231,4 @@ document.head.appendChild(confettiStyle);
 document.addEventListener('DOMContentLoaded', () => {
     new KuisMatematika();
 });
+
